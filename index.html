@@ -580,66 +580,226 @@ ventana.mainloop()
               <button class="btn ghost" data-download="#code-lineal" data-filename="graficar_lineales_ascii.py">Descargar .py</button>
             </div>
             <pre id="code-lineal">
-# Graficador ASCII de dos funciones lineales y = m x + b
-# Entrada estilo: 2x+1 , -x+3 , 0.5x-4 etc.
-def preparar(expr: str) -> str:
-    s = expr.replace(" ", "")
-    s = s.replace("^","**")
-    s = s.replace("+x","+1*x").replace("-x","-1*x")
-    if s.startswith("x"): s = "1*" + s
-    out = []
-    for i,ch in enumerate(s):
-        if ch == "x" and i>0 and (s[i-1].isdigit() or s[i-1]==")"):
-            out.append("*x")
-        else:
-            out.append(ch)
-    s = "".join(out).replace("**x","*x")
-    return s
+// graficador ASCII//
+import tkinter as tk
+from tkinter import ttk, messagebox
 
-def eval_y(func, x):
-    try:
-        return eval(func, {"__builtins__":{}}, {"x":x})
-    except Exception:
-        return None
+# ===============================
+# Función para preparar expresiones lineales
+# ===============================
+def preparar_expresion(expr: str) -> str:
+    expr = expr.replace(" ", "")          # quitar espacios
+    expr = expr.replace("^", "**")        # potencia
+    expr = expr.replace("-x", "-1*x")     # caso -x
+    expr = expr.replace("+x", "+1*x")     # caso +x
+    if expr.startswith("x"):              # si empieza con x
+        expr = "1*" + expr
+    expr = expr.replace("x", "*x")        # poner multiplicación
+    expr = expr.replace("**x", "*x")      # corregir si se duplicó
+    return expr
 
-def main():
-    f1 = input("Función 1 (ej: 2x+1): ")
-    f2 = input("Función 2 (ej: -x+3): ")
-    f1p, f2p = preparar(f1), preparar(f2)
+# ===============================
+# Función para graficar las funciones en ASCII
+# ===============================
+def graficar():
+    f1 = entrada1.get()
+    f2 = entrada2.get()
+
+    if not f1.strip() or not f2.strip():
+        messagebox.showwarning("Error", "Por favor ingresa ambas funciones.")
+        return
+
+    func1 = preparar_expresion(f1)
+    func2 = preparar_expresion(f2)
+
     xmin, xmax = -20, 20
-    ymin, ymax = -12, 12
-    print("\nGráfico ASCII (escala 1 unidad por celda):\n")
-    for y in range(ymax, ymin-1, -1):
-        row = []
-        for x in range(xmin, xmax+1):
-            y1 = eval_y(f1p, x); y2 = eval_y(f2p, x)
-            on1 = (y1 is not None and abs(y - y1) < 0.5)
-            on2 = (y2 is not None and abs(y - y2) < 0.5)
-            if on1 and on2: row.append("#")
-            elif on1:       row.append("*")
-            elif on2:       row.append("o")
-            elif x==0 and y==0: row.append("+")
-            elif x==0: row.append("|")
-            elif y==0: row.append("-")
-            else: row.append(" ")
-        print("".join(row))
-    print("\nLeyenda:\n  * = Función 1   o = Función 2   # = Intersección   | = Eje Y   - = Eje X   + = Origen")
-    def mb(expr):
-        y0 = eval_y(expr, 0); y1 = eval_y(expr, 1)
-        if y0 is None or y1 is None: return None,None
-        m = y1 - y0; b = y0
-        return m,b
-    m1,b1 = mb(f1p); m2,b2 = mb(f2p)
-    if None in (m1,b1,m2,b2):
-        print("\nNo se pudo estimar intersección.")
-    elif abs(m1 - m2) < 1e-12:
-        print("\nRectas paralelas o coincidentes (m1 ≈ m2).")
-    else:
-        xi = (b2 - b1) / (m1 - m2); yi = m1*xi + b1
-        print(f"\nIntersección aproximada: (x={xi:.3f}, y={yi:.3f})")
+    ymin, ymax = -20, 20
 
-if __name__=="__main__":
-    main()
+    resultado_texto = ""
+
+    for y in range(ymax, ymin - 1, -1):
+        linea = ""
+        for x in range(xmin, xmax + 1):
+            try:
+                y1 = eval(func1)
+            except:
+                y1 = None
+            try:
+                y2 = eval(func2)
+            except:
+                y2 = None
+
+            cond1 = (y1 is not None and abs(y - y1) < 0.5)
+            cond2 = (y2 is not None and abs(y - y2) < 0.5)
+
+            if cond1 and cond2:
+                linea += "#"
+            elif cond1:
+                linea += "*"
+            elif cond2:
+                linea += "o"
+            elif x == 0 and y == 0:
+                linea += "+"
+            elif x == 0:
+                linea += "|"
+            elif y == 0:
+                linea += "-"
+            else:
+                linea += " "
+        resultado_texto += linea + "\n"
+
+    # Leyenda
+    resultado_texto += "\nLeyenda del gráfico:\n"
+    resultado_texto += "  * = Función 1\n"
+    resultado_texto += "  o = Función 2\n"
+    resultado_texto += "  # = Intersección\n"
+    resultado_texto += "  | = Eje Y\n"
+    resultado_texto += "  - = Eje X\n"
+    resultado_texto += "  + = Origen (0,0)\n"
+
+    resultado.configure(state="normal")
+    resultado.delete("1.0", "end")
+    resultado.insert("1.0", resultado_texto)
+    resultado.configure(state="disabled")
+
+# ===============================
+# Función para limpiar entradas
+# ===============================
+def limpiar():
+    entrada1.delete(0, "end")
+    entrada2.delete(0, "end")
+    resultado.configure(state="normal")
+    resultado.delete("1.0", "end")
+    resultado.configure(state="disabled")
+
+# ===============================
+# Ventana principal
+# ===============================
+ventana = tk.Tk()
+ventana.title("🚀 Graficador Futurista de Funciones")
+ventana.geometry("700x500")
+ventana.resizable(False, False)
+ventana.configure(bg="#0B0C10")
+
+# ===============================
+# Estilos
+# ===============================
+estilo = ttk.Style()
+estilo.theme_use("clam")
+
+estilo.configure(
+    "BotonFuturista.TButton",
+    font=("Segoe UI Semibold", 11),
+    padding=8,
+    background="#1F2833",
+    foreground="#66FCF1",
+    borderwidth=0,
+)
+estilo.map(
+    "BotonFuturista.TButton",
+    background=[("active", "#45A29E"), ("disabled", "#1F2833")],
+    foreground=[("active", "white")]
+)
+
+estilo.configure(
+    "EntradaFuturista.TEntry",
+    fieldbackground="#1F2833",
+    foreground="#C5C6C7",
+    insertcolor="#66FCF1",
+    padding=6,
+    relief="flat",
+)
+
+# ===============================
+# Título
+# ===============================
+titulo = tk.Label(
+    ventana,
+    text="🌌 Graficador ASCII de Funciones",
+    font=("Orbitron", 16, "bold"),
+    fg="#66FCF1",
+    bg="#0B0C10",
+)
+titulo.pack(pady=(20, 10))
+
+# ===============================
+# Marco de entradas
+# ===============================
+marco_entrada = tk.Frame(ventana, bg="#0B0C10")
+marco_entrada.pack(pady=5)
+
+entrada1 = ttk.Entry(
+    marco_entrada,
+    font=("Consolas", 14),
+    width=25,
+    style="EntradaFuturista.TEntry",
+)
+entrada1.pack(side="left", padx=5)
+entrada1.insert(0, "Ej: 3x+2")
+
+entrada2 = ttk.Entry(
+    marco_entrada,
+    font=("Consolas", 14),
+    width=25,
+    style="EntradaFuturista.TEntry",
+)
+entrada2.pack(side="left", padx=5)
+entrada2.insert(0, "Ej: -x+6")
+
+btn_graficar = ttk.Button(
+    marco_entrada,
+    text="Graficar",
+    style="BotonFuturista.TButton",
+    command=graficar
+)
+btn_graficar.pack(side="left", padx=5)
+
+btn_limpiar = ttk.Button(
+    marco_entrada,
+    text="Limpiar",
+    style="BotonFuturista.TButton",
+    command=limpiar
+)
+btn_limpiar.pack(side="left", padx=5)
+
+ventana.bind("<Return>", lambda e: graficar())
+
+# ===============================
+# Marco de resultados
+# ===============================
+marco_resultado = tk.LabelFrame(
+    ventana,
+    text="📊 RESULTADOS",
+    font=("Segoe UI", 11, "bold"),
+    fg="#66FCF1",
+    bg="#0B0C10",
+    labelanchor="n",
+    bd=2,
+    relief="groove"
+)
+marco_resultado.pack(fill="both", expand=True, padx=20, pady=15)
+
+scrollbar = tk.Scrollbar(marco_resultado)
+scrollbar.pack(side="right", fill="y")
+
+resultado = tk.Text(
+    marco_resultado,
+    font=("Consolas", 12),
+    bg="#1F2833",
+    fg="#C5C6C7",
+    relief="flat",
+    wrap="word",
+    yscrollcommand=scrollbar.set,
+    state="disabled"
+)
+resultado.pack(fill="both", expand=True, padx=10, pady=10)
+scrollbar.config(command=resultado.yview)
+
+# ===============================
+# Iniciar
+# ===============================
+ventana.mainloop()
+
             </pre>
           </div>
         </div>
@@ -763,79 +923,162 @@ Determine cuántos dispositivos de cada tipo puede ensamblar sin exceder las 50 
               <button class="btn ghost" data-download="#code-newton" data-filename="newton_raphson_plot.py">Descargar .py</button>
             </div>
             <pre id="code-newton">
-import numpy as np
-import matplotlib.pyplot as plt
+// metodo newton raphson //
+import tkinter as tk
+from tkinter import ttk, messagebox
 
-SAFE = {
-    "sin": np.sin, "cos": np.cos, "tan": np.tan,
-    "exp": np.exp, "log": np.log, "sqrt": np.sqrt,
-    "pi": np.pi, "e": np.e, "abs": np.abs
-}
+# =============================== FUNCIONES ===============================
+def f1(x):
+    try:
+        return eval(func1_str)
+    except:
+        return None
 
-def parse_func(s):
-    s = s.replace("^","**")
-    def f(x):
-        return eval(s, {"__builtins__":{}}, {**SAFE, "x":x})
-    return f
+def f2(x):
+    try:
+        return eval(func2_str)
+    except:
+        return None
 
-def deriv(f, x, h=1e-6):
-    return (f(x+h) - f(x-h)) / (2*h)
+def graficar_canvas():
+    # Limpiar canvas
+    canvas.delete("all")
 
-if __name__ == "__main__":
-    func_str = input("Ingrese f(x) (ej: x**3 - x - 1): ")
-    f = parse_func(func_str)
-    xmin = float(input("x mínimo: "))
-    xmax = float(input("x máximo: "))
-    xs = np.linspace(xmin, xmax, 600)
-    ys = f(xs)
+    # Obtener rangos
+    try:
+        xmin = float(entrada_xmin.get())
+        xmax = float(entrada_xmax.get())
+        ymin = float(entrada_ymin.get())
+        ymax = float(entrada_ymax.get())
+    except:
+        messagebox.showerror("Error", "Rangos inválidos")
+        return
 
-    plt.figure(figsize=(8,5))
-    plt.plot(xs, ys, label=f"f(x) = {func_str}")
-    plt.axhline(0, color="black", linestyle="--", linewidth=0.8)
-    plt.axvline(0, color="black", linestyle="--", linewidth=0.8)
-    plt.title("Vista previa de f(x)")
-    plt.xlabel("x"); plt.ylabel("f(x)")
-    plt.grid(True, alpha=.25); plt.legend()
-    plt.show()
+    ancho = int(canvas["width"])
+    alto = int(canvas["height"])
 
-    op = input("¿Aplicar Newton-Raphson? (s/n): ").strip().lower()
-    if op == "s":
-        x0 = float(input("Ingrese x1 (punto inicial): "))
-        tol = 1e-8
-        max_iter = 100
-        xs_hist = [x0]
-        for it in range(1, max_iter+1):
-            fx = f(x0)
-            d = deriv(f, x0)
-            if not np.isfinite(fx) or not np.isfinite(d):
-                print(f"Valores no finitos cerca de x={x0}. Deteniendo.")
-                break
-            if abs(d) < 1e-12:
-                print(f"Derivada casi nula en x={x0:.6g}. Deteniendo.")
-                break
-            x1 = x0 - fx/d
-            xs_hist.append(x1)
-            if abs(x1 - x0) < tol:
-                print(f"\nRaíz ≈ {x1:.10f} en {it} iteraciones")
-                break
-            x0 = x1
-        else:
-            print("\nNo convergió en el máximo de iteraciones.")
+    def coord_to_pixel(x, y):
+        px = (x - xmin) / (xmax - xmin) * ancho
+        py = alto - (y - ymin) / (ymax - ymin) * alto
+        return px, py
 
-        try:
-            plt.figure(figsize=(8,5))
-            plt.plot(xs, ys, label="f(x)")
-            plt.axhline(0, color="black", linestyle="--", linewidth=0.8)
-            for xi in xs_hist:
-                plt.plot([xi, xi], [0, f(xi)], alpha=.35)
-                plt.scatter([xi], [f(xi)], s=28)
-            plt.title("Iteraciones de Newton-Raphson")
-            plt.legend(); plt.grid(True, alpha=.25)
-            plt.show()
-        except Exception:
-            pass
-    else:
-        print("Operación cancelada.")
+    # Dibujar ejes
+    # Eje X
+    px0, py0 = coord_to_pixel(xmin, 0)
+    px1, py1 = coord_to_pixel(xmax, 0)
+    canvas.create_line(px0, py0, px1, py1, fill="white")
+    # Eje Y
+    px0, py0 = coord_to_pixel(0, ymin)
+    px1, py1 = coord_to_pixel(0, ymax)
+    canvas.create_line(px0, py0, px1, py1, fill="white")
+
+    # Dibujar función 1
+    if func1_str:
+        prev = None
+        for i in range(1000):
+            x = xmin + i*(xmax - xmin)/999
+            y = f1(x)
+            if y is not None:
+                px, py = coord_to_pixel(x, y)
+                if prev:
+                    canvas.create_line(prev[0], prev[1], px, py, fill="cyan", width=2)
+                prev = (px, py)
+            else:
+                prev = None
+
+    # Dibujar función 2
+    if func2_str:
+        prev = None
+        for i in range(1000):
+            x = xmin + i*(xmax - xmin)/999
+            y = f2(x)
+            if y is not None:
+                px, py = coord_to_pixel(x, y)
+                if prev:
+                    canvas.create_line(prev[0], prev[1], px, py, fill="orange", width=2)
+                prev = (px, py)
+            else:
+                prev = None
+
+# =============================== INTERFAZ ===============================
+ventana = tk.Tk()
+ventana.title("🚀 Graficador estilo Geogebra")
+ventana.geometry("900x600")
+ventana.configure(bg="#0B0C10")
+
+# Estilo botones
+estilo = ttk.Style()
+estilo.theme_use("clam")
+estilo.configure(
+    "BotonFuturista.TButton",
+    font=("Segoe UI Semibold", 11),
+    padding=8,
+    background="#1F2833",
+    foreground="#66FCF1",
+    borderwidth=0
+)
+estilo.map(
+    "BotonFuturista.TButton",
+    background=[("active", "#45A29E")],
+    foreground=[("active", "white")]
+)
+
+# Título
+titulo = tk.Label(
+    ventana,
+    text="🌌 Graficador estilo Geogebra",
+    font=("Arial", 16, "bold"),
+    fg="#66FCF1",
+    bg="#0B0C10"
+)
+titulo.pack(pady=(10,5))
+
+# Entradas funciones
+marco_func = tk.Frame(ventana, bg="#0B0C10")
+marco_func.pack(pady=5)
+
+tk.Label(marco_func, text="f1(x) = ", fg="#66FCF1", bg="#0B0C10").pack(side="left")
+entrada_func1 = tk.Entry(marco_func, width=20)
+entrada_func1.pack(side="left", padx=5)
+tk.Label(marco_func, text="f2(x) = ", fg="#66FCF1", bg="#0B0C10").pack(side="left")
+entrada_func2 = tk.Entry(marco_func, width=20)
+entrada_func2.pack(side="left", padx=5)
+
+def guardar_func():
+    global func1_str, func2_str
+    func1_str = entrada_func1.get()
+    func2_str = entrada_func2.get()
+    messagebox.showinfo("Funciones guardadas", "Funciones actualizadas correctamente")
+
+btn_guardar_func = ttk.Button(marco_func, text="Guardar funciones", style="BotonFuturista.TButton", command=guardar_func)
+btn_guardar_func.pack(side="left", padx=5)
+
+# Entradas rango
+marco_rango = tk.Frame(ventana, bg="#0B0C10")
+marco_rango.pack(pady=5)
+tk.Label(marco_rango, text="X min:", fg="#66FCF1", bg="#0B0C10").pack(side="left")
+entrada_xmin = tk.Entry(marco_rango, width=5)
+entrada_xmin.pack(side="left", padx=2)
+tk.Label(marco_rango, text="X max:", fg="#66FCF1", bg="#0B0C10").pack(side="left")
+entrada_xmax = tk.Entry(marco_rango, width=5)
+entrada_xmax.pack(side="left", padx=2)
+tk.Label(marco_rango, text="Y min:", fg="#66FCF1", bg="#0B0C10").pack(side="left")
+entrada_ymin = tk.Entry(marco_rango, width=5)
+entrada_ymin.pack(side="left", padx=2)
+tk.Label(marco_rango, text="Y max:", fg="#66FCF1", bg="#0B0C10").pack(side="left")
+entrada_ymax = tk.Entry(marco_rango, width=5)
+entrada_ymax.pack(side="left", padx=2)
+
+# Botón graficar
+btn_graficar = ttk.Button(ventana, text="Graficar", style="BotonFuturista.TButton", command=graficar_canvas)
+btn_graficar.pack(pady=5)
+
+# Canvas
+canvas = tk.Canvas(ventana, width=800, height=400, bg="#0B0C10")
+canvas.pack(padx=10, pady=10)
+
+ventana.mainloop()
+
             </pre>
           </div>
         </div>
@@ -988,5 +1231,6 @@ document.addEventListener('keydown', (e)=>{
 </script>
 </body>
 </html>
+
 
 
