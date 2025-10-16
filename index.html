@@ -365,95 +365,179 @@
               <button class="btn ghost" data-download="#code-rec" data-filename="analizador_funciones.py">Descargar .py</button>
             </div>
             <pre id="code-rec">
-# Analizador de funciones (2 variables) con conteo detallado
-# - Evita confundir funciones: sin, cos, tan, log, ln, exp, sqrt, asin, acos, atan, sinh, cosh, tanh, log10, log2, pow
-# - Cuenta +, -, *, /, ^ y multiplicaciones implícitas: 5x, xy, (x+1)(y-2), 2(x+y)
-# - Muestra desglose de operadores y total
-import re
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-FUNC_KEYWORDS = {"sin","cos","tan","log","ln","exp","sqrt","asin","acos","atan",
-                 "sinh","cosh","tanh","log10","log2","pow"}
+# ===============================
+# Función principal de análisis
+# ===============================
+def analizar(event=None):
+    expresion = entrada.get()
 
-TOKEN_RE = re.compile(r"([a-zA-Z]+|\d+(?:\.\d+)?|[\+\-\*\/\^\(\)])")
-
-def detectar_variables(expr: str):
-    vars_set = set()
-    for m in re.finditer(r"[a-zA-Z]+", expr):
-        word = m.group(0)
-        if word.lower() not in FUNC_KEYWORDS:
-            for ch in word:
-                vars_set.add(ch)
-    return sorted(vars_set)
-
-def contar_operaciones(expr: str):
-    s = expr.replace(" ", "")
-    counts = {"+":0,"-":0,"*":0,"/":0,"^":0,"impl":0}
-    # explícitos (+ - * / ^) con manejo de '-' unario
-    for i,c in enumerate(s):
-        if c in "+*/^":
-            counts[c]+=1
-        elif c=="-":
-            if i>0 and s[i-1] not in "+-*/^(":
-                counts["-"]+=1
-    # implícitas con pares de tokens contiguos
-    tokens = TOKEN_RE.findall(s)
-    def is_num(t): return re.fullmatch(r"\d+(?:\.\d+)?", t) is not None
-    def is_word(t): return re.fullmatch(r"[a-zA-Z]+", t) is not None
-    def is_var(t): return is_word(t) and t.lower() not in FUNC_KEYWORDS
-    for a,b in zip(tokens,tokens[1:]):
-        if a=="*" or b=="*": continue
-        if (is_num(a) and is_var(b)) or (is_var(a) and is_var(b)) or \
-           (a==")" and b=="(") or (a==")" and is_var(b)) or \
-           (is_var(a) and b=="(") or (is_num(a) and b=="("):
-            counts["impl"]+=1
-    total = sum(v for k,v in counts.items() if k!="impl") + counts["impl"]
-    return counts,total
-
-def analizar():
-    expr = entrada.get()
-    if not expr.strip():
-        messagebox.showwarning("Error", "Por favor ingresa una función.")
+    if not expresion.strip():
+        messagebox.showwarning("Error", "Por favor ingresa una función matemática.")
         return
-    variables = detectar_variables(expr)
-    if len(variables)==0:
-        messagebox.showinfo("Resultado", "No se detectaron variables.")
-        return
-    if len(variables)>2:
-        messagebox.showerror("Error", f"Más de 2 variables: {', '.join(variables)}")
-        return
-    counts, total = contar_operaciones(expr)
-    resultado.set(
-        "Variables: {vars}\nN.º de variables: {n}\n"
-        "Conteo de operadores:\n"
-        "  +: {p}   -: {m}   *: {t}   /: {d}   ^: {e}\n"
-        "  Multiplicaciones implícitas: {impl}\n"
-        "Total de operaciones: {tot}".format(
-            vars=", ".join(variables), n=len(variables),
-            p=counts['+'], m=counts['-'], t=counts['*'], d=counts['/'], e=counts['^'],
-            impl=counts['impl'], tot=total
-        )
+
+    variables = set()
+    operaciones = 0
+
+    for i, c in enumerate(expresion):
+        if c.isalpha():
+            variables.add(c)
+        elif c in "+-*/^":
+            operaciones += 1
+
+        # Detección de multiplicación implícita
+        if i < len(expresion) - 1:
+            siguiente = expresion[i + 1]
+            if c.isdigit() and siguiente.isalpha():
+                operaciones += 1
+            elif c.isalpha() and siguiente.isalpha():
+                operaciones += 1
+
+    resultado_texto = (
+        f"📡 Análisis completado:\n\n"
+        f"🔸 Variables encontradas: {', '.join(sorted(variables)) if variables else 'Ninguna'}\n"
+        f"🔸 Número de variables: {len(variables)}\n"
+        f"🔸 Número de operaciones: {operaciones}"
     )
 
-# UI
-root = tk.Tk()
-root.title("Analizador de Funciones (2 variables)")
-root.geometry("560x360")
-root.configure(bg="#0f162c")
-style = ttk.Style(); style.theme_use("clam")
-style.configure("TButton", font=("Inter", 11), padding=6)
-style.configure("TLabel", font=("Inter", 11))
-style.configure("TEntry", padding=6)
-tk.Label(root, text="Ingresa una función (máx. 2 variables):",
-         font=("Inter", 12, "bold"), bg="#0f162c", fg="#e6ecff").pack(pady=10)
-entrada = ttk.Entry(root, font=("Consolas", 14), width=44); entrada.pack(pady=6, ipady=4)
-ttk.Button(root, text="Analizar", command=analizar).pack(pady=8)
-resultado = tk.StringVar()
-tk.Label(root, textvariable=resultado, justify="left",
-         font=("Consolas", 12), bg="#111b2a", fg="#e6ecff",
-         bd=1, relief="groove").pack(fill="both", expand=True, padx=18, pady=12)
-root.mainloop()
+    resultado.configure(state="normal")
+    resultado.delete("1.0", "end")
+    resultado.insert("1.0", resultado_texto)
+    resultado.configure(state="disabled")
+
+
+# ===============================
+# Función para limpiar la entrada
+# ===============================
+def limpiar():
+    entrada.delete(0, "end")
+    resultado.configure(state="normal")
+    resultado.delete("1.0", "end")
+    resultado.configure(state="disabled")
+
+
+# ===============================
+# Ventana principal
+# ===============================
+ventana = tk.Tk()
+ventana.title("🚀 Analizador Matemático Avanzado")
+ventana.geometry("600x400")
+ventana.resizable(False, False)
+ventana.configure(bg="#0B0C10")  # Fondo oscuro espacial
+
+# ===============================
+# Estilos personalizados
+# ===============================
+estilo = ttk.Style()
+estilo.theme_use("clam")
+
+# Botones estilo futurista
+estilo.configure(
+    "BotonFuturista.TButton",
+    font=("Segoe UI Semibold", 11),
+    padding=8,
+    background="#1F2833",
+    foreground="#66FCF1",
+    borderwidth=0,
+)
+estilo.map(
+    "BotonFuturista.TButton",
+    background=[("active", "#45A29E"), ("disabled", "#1F2833")],
+    foreground=[("active", "white")]
+)
+
+# Entrada
+estilo.configure(
+    "EntradaFuturista.TEntry",
+    fieldbackground="#1F2833",
+    foreground="#C5C6C7",
+    insertcolor="#66FCF1",
+    padding=6,
+    relief="flat",
+)
+
+# ===============================
+# Título
+# ===============================
+titulo = tk.Label(
+    ventana,
+    text="🔭 Analizador de Funciones Matemáticas",
+    font=("Orbitron", 16, "bold"),
+    fg="#66FCF1",
+    bg="#0B0C10",
+)
+titulo.pack(pady=(20, 10))
+
+# ===============================
+# Marco de entrada
+# ===============================
+marco_entrada = tk.Frame(ventana, bg="#0B0C10")
+marco_entrada.pack(pady=5)
+
+entrada = ttk.Entry(
+    marco_entrada,
+    font=("Consolas", 14),
+    width=30,
+    style="EntradaFuturista.TEntry",
+)
+entrada.pack(side="left", padx=10)
+
+btn_analizar = ttk.Button(
+    marco_entrada,
+    text="Analizar",
+    style="BotonFuturista.TButton",
+    command=analizar
+)
+btn_analizar.pack(side="left", padx=5)
+
+btn_limpiar = ttk.Button(
+    marco_entrada,
+    text="Limpiar",
+    style="BotonFuturista.TButton",
+    command=limpiar
+)
+btn_limpiar.pack(side="left", padx=5)
+
+ventana.bind("<Return>", analizar)  # Presionar Enter para analizar
+
+# ===============================
+# Marco de resultados
+# ===============================
+marco_resultado = tk.LabelFrame(
+    ventana,
+    text="📊 RESULTADOS",
+    font=("Segoe UI", 11, "bold"),
+    fg="#66FCF1",
+    bg="#0B0C10",
+    labelanchor="n",
+    bd=2,
+    relief="groove"
+)
+marco_resultado.pack(fill="both", expand=True, padx=20, pady=15)
+
+# Caja de texto con scroll
+scrollbar = tk.Scrollbar(marco_resultado)
+scrollbar.pack(side="right", fill="y")
+
+resultado = tk.Text(
+    marco_resultado,
+    font=("Consolas", 12),
+    bg="#1F2833",
+    fg="#C5C6C7",
+    relief="flat",
+    wrap="word",
+    yscrollcommand=scrollbar.set,
+    state="disabled"
+)
+resultado.pack(fill="both", expand=True, padx=10, pady=10)
+scrollbar.config(command=resultado.yview)
+
+# ===============================
+# Iniciar
+# ===============================
+ventana.mainloop()
             </pre>
           </div>
         </div>
@@ -903,3 +987,4 @@ document.addEventListener('keydown', (e)=>{
 </script>
 </body>
 </html>
+
