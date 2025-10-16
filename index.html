@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Portafolio – Programación Numérica (2025-I)</title>
+<meta name="description" content="Portafolio académico de Programación Numérica · 2025-I · Jean Carlos Aquino Sandoval · FINESI – UNA Puno">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Ctext y='32' font-size='32'%3E∑%3C/text%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#0a0f1e; --panel:#0e152a; --panel-2:#0b1124; --card:#0f1933;
+    --text:#eaf0ff; --muted:#a9b6e8;
+    --brand:#4f7bff; --brand-2:#1fb598; --accent:#ffc857;
+    --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+    --ring:0 0 0 3px rgba(79,123,255,.35);
+    --radius:16px; --shadow:0 14px 44px rgba(0,0,0,.42);
+    --border:#1a2442; --glass:rgba(255,255,255,.05);
+  }
+  :root.light{
+    --bg:#f6f8ff; --panel:#ffffff; --panel-2:#f1f5ff; --card:#ffffff;
+    --text:#0a1022; --muted:#5a6682;
+    --brand:#3b5bfd; --brand-2:#18a98c; --accent:#f6a700;
+    --ring:0 0 0 3px rgba(59,91,253,.22);
+    --shadow:0 16px 46px rgba(20,30,70,.10);
+    --border:#e6e9f3; --glass:rgba(0,0,0,.04);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 85% -10%, #1a2b6e30 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #13305630 0%, transparent 60%),
+      var(--bg);
+  }
+  a{color:var(--brand); text-decoration:none}
+  .app{display:grid; grid-template-columns:300px 1fr; min-height:100vh}
+
+  /* SIDEBAR */
+  .sidebar{
+    position:sticky; top:0; height:100dvh; overflow:auto;
+    background:linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border-right:1px solid var(--border); padding:20px;
+    backdrop-filter:saturate(140%) blur(8px);
+  }
+  .brand{display:flex; align-items:center; gap:12px; margin-bottom:16px}
+  .logo{width:42px; height:42px; border-radius:12px;
+    background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    box-shadow:0 8px 22px rgba(79,123,255,.28)}
+  .brand h1{font-size:16px; margin:0; line-height:1.2; font-weight:800; letter-spacing:.2px}
+  .subbrand{font-size:12px; color:var(--muted); margin-top:2px}
+  .nav-title{font-size:12px; color:var(--muted); margin:16px 10px 8px; text-transform:uppercase; letter-spacing:.12em}
+  .nav a, .nav button{
+    display:flex; align-items:center; gap:10px; width:100%;
+    background:transparent; border:0; color:var(--text);
+    padding:10px 12px; border-radius:12px; cursor:pointer; text-align:left;
+    transition:transform .12s ease, background .2s ease, color .2s ease;
+    border:1px solid transparent;
+  }
+  .nav a:hover, .nav button:hover{ background:var(--glass); border-color:var(--border)}
+  .nav a.active, .nav button.active{ background:rgba(79,123,255,.15); outline:var(--ring) }
+  .collapse{margin-left:8px; padding-left:8px; border-left:1px dashed var(--border)}
+  .badge{margin-left:auto; font-size:11px; color:#0b1020; background:var(--accent); border-radius:999px; padding:2px 8px; font-weight:700}
+  .search{display:flex; gap:8px; margin-top:8px}
+  .search input{
+    width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:var(--panel); color:var(--text)
+  }
+
+  /* TOPBAR */
+  .topbar{
+    position:sticky; top:0; z-index:10; backdrop-filter:saturate(140%) blur(8px);
+    background:linear-gradient(180deg, rgba(20,30,60,.35), transparent);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar-wrap{display:flex; align-items:center; justify-content:space-between; padding:14px 24px}
+  .greeting{font-weight:800; font-size:20px}
+  .mode{display:flex; gap:10px; align-items:center}
+  .chiprow{display:flex; gap:8px; flex-wrap:wrap}
+  .chip{
+    font-size:12px; color:#0b1020; background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    padding:6px 10px; border-radius:999px; font-weight:700; box-shadow:0 8px 22px rgba(79,123,255,.25)
+  }
+  .toggle{appearance:none; width:46px; height:26px; border-radius:999px; position:relative; background:var(--border); cursor:pointer; outline:var(--ring); border:1px solid var(--border)}
+  .toggle:checked{background:linear-gradient(135deg,var(--brand),var(--brand-2))}
+  .toggle:before{content:""; position:absolute; top:2px; left:2px; width:22px; height:22px; border-radius:50%; background:#fff; transition:left .2s ease}
+  .toggle:checked:before{left:22px}
+
+  /* CONTENT */
+  .content{padding:24px; display:grid; gap:20px}
+
+  /* CORPORATE SECTION HEADER */
+  .section-header{
+    position:relative; padding:18px 18px 18px 20px;
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow);
+  }
+  .section-header .eyebrow{
+    text-transform:uppercase; letter-spacing:.14em; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:700;
+  }
+  .section-header h1{
+    margin:0; font-size:26px; line-height:1.25; font-weight:800;
+  }
+  .section-header .desc{
+    margin-top:6px; color:var(--muted); max-width:90ch;
+  }
+  .section-header .accent{
+    position:absolute; left:0; top:14px; bottom:14px; width:5px;
+    background:linear-gradient(180deg,var(--brand),var(--brand-2)); border-radius:6px;
+  }
+  .meta{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+  .meta .tag{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; background:rgba(79,123,255,.15); color:var(--text); font-size:12px; border:1px solid var(--border)}
+
+  .hero{padding:24px; border-radius:18px; border:1px solid var(--border); background:linear-gradient(180deg,var(--panel), color-mix(in oklab,var(--panel-2) 65%, transparent)); box-shadow:var(--shadow)}
+  .hero h2{margin:0 0 8px; font-size:28px}
+  .hero p{margin:0; color:var(--muted)}
+
+  .grid{display:grid; gap:18px}
+  @media(min-width:1024px){ .grid{grid-template-columns:repeat(12,1fr)} }
+  .card{
+    background:linear-gradient(180deg,var(--panel), color-mix(in oklab,var(--panel-2) 65%, transparent));
+    border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px;
+  }
+  .card h3{margin:0 0 8px}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; border:0; cursor:pointer;
+    font-weight:700; padding:10px 14px; border-radius:12px; transition:.15s ease; text-decoration:none;
+  }
+  .btn.primary{ background:linear-gradient(135deg,var(--brand),var(--brand-2)); color:#0b1020; box-shadow:0 10px 28px rgba(79,123,255,.25) }
+  .btn.ghost{ background:transparent; color:var(--text); border:1px solid var(--border) }
+  .btn:hover{ transform:translateY(-1px) }
+
+  section[hidden]{display:none !important}
+  .breadcrumbs{color:var(--muted); font-size:13px; margin-bottom:10px}
+  .list{display:grid; gap:12px}
+  .list .item{display:flex; align-items:center; justify-content:space-between; gap:12px; background:rgba(255,255,255,.02); border:1px solid var(--border); padding:12px 14px; border-radius:12px}
+
+  /* Logos fijos */
+  .logo-duo{display:flex; gap:16px; flex-wrap:wrap; align-items:center}
+  .logo-box{
+    width:150px; height:150px; border-radius:14px; background:var(--glass);
+    border:1px solid var(--border); display:grid; place-items:center; overflow:hidden;
+  }
+  .logo-box img{max-width:100%; max-height:100%; object-fit:contain}
+
+  /* CODE */
+  pre{margin:0; white-space:pre; overflow:auto; padding:16px; border-radius:12px; background:rgba(0,0,0,.28); border:1px solid var(--border); color:var(--text); font-size:13px}
+  .code-card{display:grid; gap:10px}
+  .code-actions{display:flex; gap:10px; flex-wrap:wrap}
+
+  .pdf-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px}
+
+  .cols-6{grid-column:span 6} .cols-4{grid-column:span 4} .cols-8{grid-column:span 8} .full{grid-column:1/-1}
+  .right{display:flex; justify-content:flex-end}
+  .mt8{margin-top:8px} .mt12{margin-top:12px} .mt16{margin-top:16px} .mt24{margin-top:24px}
+  .small{font-size:13px} .muted{color:var(--muted)}
+  .hr{height:1px; background:var(--border); border:0; margin:8px 0 16px}
+
+  /* Editorial blocks */
+  .twocol{display:grid; gap:14px}
+  @media(min-width:920px){ .twocol{grid-template-columns:1fr 1fr} }
+  .callout{border-left:5px solid var(--brand); padding:10px 12px; background:rgba(79,123,255,.10); border-radius:8px}
+  .richtext{line-height:1.6; color:var(--muted)}
+  .richtext p{margin:0 0 10px}
+  .doc-block{
+    background:linear-gradient(180deg,var(--panel), color-mix(in oklab,var(--panel-2) 65%, transparent));
+    border:1px dashed var(--border); border-radius:14px; padding:16px; color:var(--text);
+    font-size:14px; line-height:1.65;
+  }
+  .doc-block p{margin:0 0 10px}
+  .doc-block pre{
+    background:rgba(0,0,0,.20); border:1px solid var(--border); font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    white-space:pre-wrap; word-break:break-word; font-size:14px;
+  }
+
+  /* Back to top */
+  .to-top{position:fixed; right:18px; bottom:18px; z-index:999; opacity:0; pointer-events:none; transition:.2s}
+  .to-top.show{opacity:1; pointer-events:auto}
+
+  /* Print */
+  @media print{
+    .sidebar,.topbar,.to-top{display:none}
+    .content{padding:0}
+    .card,.hero,.section-header{box-shadow:none; border:1px solid #ddd}
+  }
+</style>
+</head>
+<body>
+<div class="app" role="application">
+  <!-- =========== SIDEBAR =========== -->
+  <aside class="sidebar" aria-label="Barra lateral de navegación">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Portafolio – Programación Numérica</h1>
+        <div class="subbrand">2025-I · C/C++ · Python · Excel</div>
+      </div>
+    </div>
+
+    <nav class="nav" role="navigation">
+      <div class="nav-title">Navegación</div>
+      <a href="#home" data-link class="active">Inicio</a>
+      <button class="active" id="btn-u1" aria-expanded="true" aria-controls="u1-collapse">Unidad 1 <span class="badge">5 actividades</span></button>
+      <div class="collapse" id="u1-collapse">
+        <a href="#u1" data-link>Portada U1</a>
+        <a href="#u1-rec-func" data-link>Reconocimiento de Funciones</a>
+        <a href="#u1-lineales" data-link>Graficar Funciones Lineales</a>
+        <a href="#u1-restricciones" data-link>Restricciones y Sistemas</a>
+        <a href="#u1-regula" data-link>Regula Falsi</a>
+        <a href="#u1-newton" data-link>Newton-Raphson</a>
+      </div>
+
+      <div class="nav-title">Buscar</div>
+      <div class="search">
+        <input id="q" type="search" placeholder="Filtrar… (newton, regula, lineal)" aria-label="Buscar actividades">
+      </div>
+    </nav>
+  </aside>
+
+  <!-- =========== MAIN =========== -->
+  <main>
+    <!-- TOPBAR -->
+    <div class="topbar" role="banner">
+      <div class="topbar-wrap">
+        <div class="greeting" id="greeting">Buenas noches, bienvenido a mi portafolio</div>
+        <div class="mode">
+          <div class="chiprow">
+            <div class="chip">Estudiante: <strong>&nbsp;Jean Carlos Aquino Sandoval</strong></div>
+            <div class="chip">Docente: <strong>&nbsp;Torres Cruz Fred</strong></div>
+            <div class="chip">Sección: <strong>&nbsp;A</strong></div>
+          </div>
+          <label class="small muted" for="theme">Modo</label>
+          <input class="toggle" id="theme" type="checkbox" aria-label="Cambiar modo claro/oscuro">
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- ========== HOME ========== -->
+      <section id="home">
+        <div class="section-header">
+          <div class="accent" aria-hidden="true"></div>
+          <div class="eyebrow">Presentación</div>
+          <h1>Portafolio del curso Programación Numérica</h1>
+          <p class="desc">Compendio de actividades, reportes y código del semestre 2025-I. Enfoque **corporativo** orientado a claridad, trazabilidad y reproducibilidad, integrando <strong>C/C++</strong>, <strong>Python</strong> y <strong>Excel</strong>.</p>
+          <div class="meta">
+            <span class="tag">FINESI – Universidad Nacional del Altiplano</span>
+            <span class="tag">Convergencia y estabilidad</span>
+            <span class="tag">Buenas prácticas</span>
+          </div>
+        </div>
+
+        <div class="hero mt16">
+          <h2 class="mb0">Identidad institucional</h2>
+          <p class="small muted mt8">Logotipos oficiales (Universidad y Facultad/Escuela).</p>
+          <div class="logo-duo mt12">
+            <div class="logo-box" aria-label="Logo Universidad Nacional del Altiplano">
+              <img src="una.png" alt="Logo Universidad Nacional del Altiplano" />
+            </div>
+            <div class="logo-box" aria-label="Logo FINESI">
+              <img src="finesi.jpg" alt="Logo FINESI" />
+            </div>
+          </div>
+        </div>
+
+        <div class="grid mt16">
+          <div class="card cols-8">
+            <h3>Alcance del curso</h3>
+            <div class="twocol">
+              <div class="richtext">
+                <p>La programación numérica aborda problemas donde la solución exacta es inviable: búsqueda de raíces, sistemas, optimización e integración. Se prioriza <strong>estabilidad</strong>, <strong>análisis de error</strong> y <strong>criterios de parada</strong>.</p>
+              </div>
+              <div class="callout small">
+                <strong>Objetivo:</strong> evidenciar progreso técnico con entregables claros (PDF y código), justificación teórica y verificación experimental.
+              </div>
+            </div>
+            <div class="mt16">
+              <a class="btn ghost" href="#u1" data-link>Explorar Unidad 1</a>
+              <a class="btn primary" href="#u1-rec-func" data-link>Ir a Actividades</a>
+            </div>
+          </div>
+
+          <div class="card cols-4">
+            <h3>Estructura</h3>
+            <div class="list">
+              <div class="item"><span><strong>Unidad 1</strong> · Fundamentos, representación y raíces</span><a class="btn ghost" href="#u1" data-link>Abrir</a></div>
+              <div class="item"><span><strong>Unidad 2</strong> · Interpolación e integración</span><span class="tag">Próximamente</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== U1 PORTADA ========== -->
+      <section id="u1" hidden>
+        <div class="section-header">
+          <div class="accent" aria-hidden="true"></div>
+          <div class="eyebrow">Universidad Nacional del Altiplano – FINESI</div>
+          <h1>Unidad 1 · Temas y trabajos</h1>
+          <p class="desc">Formulación de funciones, representación y métodos de raíces (Regula Falsi y Newton-Raphson). Se enfatiza interpretación gráfica y diagnóstico de convergencia.</p>
+        </div>
+
+        <div class="card mt16">
+          <h3>Actividades</h3>
+          <ul id="u1-list">
+            <li><a href="#u1-rec-func" data-link>Reconocimiento de Funciones</a></li>
+            <li><a href="#u1-lineales" data-link>Graficar Funciones Lineales</a></li>
+            <li><a href="#u1-restricciones" data-link>Restricciones y Sistemas de Ecuaciones</a></li>
+            <li><a href="#u1-regula" data-link>Método de Regula Falsi</a></li>
+            <li><a href="#u1-newton" data-link>Método de Newton-Raphson</a></li>
+          </ul>
+          <div class="right mt16"><a class="btn ghost" href="#home" data-link>Volver al inicio</a></div>
+        </div>
+      </section>
+
+      <!-- ========== U1: RECONOCIMIENTO DE FUNCIONES ========== -->
+      <section id="u1-rec-func" hidden>
+        <div class="breadcrumbs">Inicio / Unidad 1 / Reconocimiento de Funciones</div>
+        <div class="section-header">
+          <div class="accent" aria-hidden="true"></div>
+          <div class="eyebrow">Actividad del curso</div>
+          <h1>Unidad 1 – Reconocimiento de Funciones</h1>
+          <div class="desc richtext">
+            <p><strong>Descripción mejorada.</strong> Se desarrolla un programa que, a partir de una función matemática ingresada por el usuario con un máximo de dos variables, <em>identifica</em> dichas variables y <em>cuantifica</em> el número de operaciones presentes. Se consideran sumas, restas, multiplicaciones, divisiones, potencias y <strong>multiplicaciones implícitas</strong> (como <code>5x</code> o <code>xy</code>), evitando confundir nombres de funciones (<code>sin</code>, <code>log</code>, <code>sqrt</code>, etc.) con variables. El resultado presenta: variables detectadas, número de variables distintas y total de operaciones encontradas.</p>
+            <div class="twocol mt12">
+              <div>
+                <p><strong>Objetivos de aprendizaje</strong></p>
+                <ul class="small">
+                  <li>Diferenciar símbolos de función y variables.</li>
+                  <li>Detectar y contar operadores explícitos e implícitos.</li>
+                  <li>Resumir métricas de complejidad de la expresión.</li>
+                </ul>
+              </div>
+              <div>
+                <p><strong>Entradas y salidas</strong></p>
+                <ul class="small">
+                  <li><em>Entrada:</em> cadena con la expresión (hasta 2 variables).</li>
+                  <li><em>Salida:</em> listado de variables, conteos por operador y total.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="meta">
+            <span class="tag">Validación de entradas</span>
+            <span class="tag">Detección de implícitas</span>
+            <span class="tag">Resumen de conteos</span>
+          </div>
+        </div>
+
+        <div class="card mt16">
+          <h3>Material</h3>
+          <div class="pdf-row">
+            <a class="btn ghost" href="pdf1.pdf" target="_blank" rel="noopener">PDF</a>
+            <a class="btn primary" href="pdf1.pdf" download>PDF</a>
+          </div>
+        </div>
+
+        <div class="card mt16">
+          <div class="code-card">
+            <div class="right small muted">Archivo: <code>analizador_funciones.py</code></div>
+            <div class="code-actions">
+              <button class="btn primary" data-copy="#code-rec">Copiar</button>
+              <button class="btn ghost" data-download="#code-rec" data-filename="analizador_funciones.py">Descargar .py</button>
+            </div>
+            <pre id="code-rec">
+# Analizador de funciones (2 variables) con conteo detallado
+# - Evita confundir funciones: sin, cos, tan, log, ln, exp, sqrt, asin, acos, atan, sinh, cosh, tanh, log10, log2, pow
+# - Cuenta +, -, *, /, ^ y multiplicaciones implícitas: 5x, xy, (x+1)(y-2), 2(x+y)
+# - Muestra desglose de operadores y total
+import re
+import tkinter as tk
+from tkinter import ttk, messagebox
+
+FUNC_KEYWORDS = {"sin","cos","tan","log","ln","exp","sqrt","asin","acos","atan",
+                 "sinh","cosh","tanh","log10","log2","pow"}
+
+TOKEN_RE = re.compile(r"([a-zA-Z]+|\d+(?:\.\d+)?|[\+\-\*\/\^\(\)])")
+
+def detectar_variables(expr: str):
+    vars_set = set()
+    for m in re.finditer(r"[a-zA-Z]+", expr):
+        word = m.group(0)
+        if word.lower() not in FUNC_KEYWORDS:
+            for ch in word:
+                vars_set.add(ch)
+    return sorted(vars_set)
+
+def contar_operaciones(expr: str):
+    s = expr.replace(" ", "")
+    counts = {"+":0,"-":0,"*":0,"/":0,"^":0,"impl":0}
+    # explícitos (+ - * / ^) con manejo de '-' unario
+    for i,c in enumerate(s):
+        if c in "+*/^":
+            counts[c]+=1
+        elif c=="-":
+            if i>0 and s[i-1] not in "+-*/^(":
+                counts["-"]+=1
+    # implícitas con pares de tokens contiguos
+    tokens = TOKEN_RE.findall(s)
+    def is_num(t): return re.fullmatch(r"\d+(?:\.\d+)?", t) is not None
+    def is_word(t): return re.fullmatch(r"[a-zA-Z]+", t) is not None
+    def is_var(t): return is_word(t) and t.lower() not in FUNC_KEYWORDS
+    for a,b in zip(tokens,tokens[1:]):
+        if a=="*" or b=="*": continue
+        if (is_num(a) and is_var(b)) or (is_var(a) and is_var(b)) or \
+           (a==")" and b=="(") or (a==")" and is_var(b)) or \
+           (is_var(a) and b=="(") or (is_num(a) and b=="("):
+            counts["impl"]+=1
+    total = sum(v for k,v in counts.items() if k!="impl") + counts["impl"]
+    return counts,total
+
+def analizar():
+    expr = entrada.get()
+    if not expr.strip():
+        messagebox.showwarning("Error", "Por favor ingresa una función.")
+        return
+    variables = detectar_variables(expr)
+    if len(variables)==0:
+        messagebox.showinfo("Resultado", "No se detectaron variables.")
+        return
+    if len(variables)>2:
+        messagebox.showerror("Error", f"Más de 2 variables: {', '.join(variables)}")
+        return
+    counts, total = contar_operaciones(expr)
+    resultado.set(
+        "Variables: {vars}\nN.º de variables: {n}\n"
+        "Conteo de operadores:\n"
+        "  +: {p}   -: {m}   *: {t}   /: {d}   ^: {e}\n"
+        "  Multiplicaciones implícitas: {impl}\n"
+        "Total de operaciones: {tot}".format(
+            vars=", ".join(variables), n=len(variables),
+            p=counts['+'], m=counts['-'], t=counts['*'], d=counts['/'], e=counts['^'],
+            impl=counts['impl'], tot=total
+        )
+    )
+
+# UI
+root = tk.Tk()
+root.title("Analizador de Funciones (2 variables)")
+root.geometry("560x360")
+root.configure(bg="#0f162c")
+style = ttk.Style(); style.theme_use("clam")
+style.configure("TButton", font=("Inter", 11), padding=6)
+style.configure("TLabel", font=("Inter", 11))
+style.configure("TEntry", padding=6)
+tk.Label(root, text="Ingresa una función (máx. 2 variables):",
+         font=("Inter", 12, "bold"), bg="#0f162c", fg="#e6ecff").pack(pady=10)
+entrada = ttk.Entry(root, font=("Consolas", 14), width=44); entrada.pack(pady=6, ipady=4)
+ttk.Button(root, text="Analizar", command=analizar).pack(pady=8)
+resultado = tk.StringVar()
+tk.Label(root, textvariable=resultado, justify="left",
+         font=("Consolas", 12), bg="#111b2a", fg="#e6ecff",
+         bd=1, relief="groove").pack(fill="both", expand=True, padx=18, pady=12)
+root.mainloop()
+            </pre>
+          </div>
+        </div>
+
+        <div class="right mt16"><a class="btn ghost" href="#u1" data-link>Volver a Actividades de la Unidad 1</a></div>
+      </section>
+
+      <!-- ========== U1: LINEALES ========== -->
+      <section id="u1-lineales" hidden>
+        <div class="breadcrumbs">Inicio / Unidad 1 / Graficar Funciones Lineales</div>
+        <div class="section-header">
+          <div class="accent" aria-hidden="true"></div>
+          <div class="eyebrow">Actividad del curso</div>
+          <h1>Unidad 1 – Graficar Funciones Lineales (ASCII)</h1>
+          <div class="desc richtext">
+            <p><strong>Descripción mejorada.</strong> Una función es una relación entre dos conjuntos que asocia a cada entrada <em>x</em> un único valor de salida <em>y</em>, denotado <code>y = f(x)</code>. Las <strong>funciones lineales</strong> se modelan como <code>f(x) = m·x + b</code>, donde <em>m</em> es la pendiente (inclinación de la recta) y <em>b</em> la ordenada al origen (punto de corte con el eje <em>y</em>).</p>
+            <p>Se implementa un programa en Python —<em>sin</em> librerías gráficas— capaz de reconocer dos expresiones lineales y generar un <strong>gráfico ASCII</strong> en un plano cartesiano con rango estándar de ±20 unidades. El resultado muestra ejes, origen e intersección aproximada, facilitando la interpretación de pendientes y cortes.</p>
+          </div>
+          <div class="meta">
+            <span class="tag">Visualización ASCII</span>
+            <span class="tag">Intersección de rectas</span>
+            <span class="tag">Sin librerías gráficas</span>
+          </div>
+        </div>
+
+        <div class="card mt16">
+          <h3>Material</h3>
+          <div class="pdf-row">
+            <a class="btn ghost" href="pdf2.pdf" target="_blank" rel="noopener">PDF</a>
+            <a class="btn primary" href="pdf2.pdf" download>PDF</a>
+          </div>
+        </div>
+
+        <div class="card mt16">
+          <div class="code-card">
+            <div class="right small muted">Archivo: <code>graficar_lineales_ascii.py</code></div>
+            <div class="code-actions">
+              <button class="btn primary" data-copy="#code-lineal">Copiar</button>
+              <button class="btn ghost" data-download="#code-lineal" data-filename="graficar_lineales_ascii.py">Descargar .py</button>
+            </div>
+            <pre id="code-lineal">
+# Graficador ASCII de dos funciones lineales y = m x + b
+# Entrada estilo: 2x+1 , -x+3 , 0.5x-4 etc.
+def preparar(expr: str) -> str:
+    s = expr.replace(" ", "")
+    s = s.replace("^","**")
+    s = s.replace("+x","+1*x").replace("-x","-1*x")
+    if s.startswith("x"): s = "1*" + s
+    out = []
+    for i,ch in enumerate(s):
+        if ch == "x" and i>0 and (s[i-1].isdigit() or s[i-1]==")"):
+            out.append("*x")
+        else:
+            out.append(ch)
+    s = "".join(out).replace("**x","*x")
+    return s
+
+def eval_y(func, x):
+    try:
+        return eval(func, {"__builtins__":{}}, {"x":x})
+    except Exception:
+        return None
+
+def main():
+    f1 = input("Función 1 (ej: 2x+1): ")
+    f2 = input("Función 2 (ej: -x+3): ")
+    f1p, f2p = preparar(f1), preparar(f2)
+    xmin, xmax = -20, 20
+    ymin, ymax = -12, 12
+    print("\nGráfico ASCII (escala 1 unidad por celda):\n")
+    for y in range(ymax, ymin-1, -1):
+        row = []
+        for x in range(xmin, xmax+1):
+            y1 = eval_y(f1p, x); y2 = eval_y(f2p, x)
+            on1 = (y1 is not None and abs(y - y1) < 0.5)
+            on2 = (y2 is not None and abs(y - y2) < 0.5)
+            if on1 and on2: row.append("#")
+            elif on1:       row.append("*")
+            elif on2:       row.append("o")
+            elif x==0 and y==0: row.append("+")
+            elif x==0: row.append("|")
+            elif y==0: row.append("-")
+            else: row.append(" ")
+        print("".join(row))
+    print("\nLeyenda:\n  * = Función 1   o = Función 2   # = Intersección   | = Eje Y   - = Eje X   + = Origen")
+    def mb(expr):
+        y0 = eval_y(expr, 0); y1 = eval_y(expr, 1)
+        if y0 is None or y1 is None: return None,None
+        m = y1 - y0; b = y0
+        return m,b
+    m1,b1 = mb(f1p); m2,b2 = mb(f2p)
+    if None in (m1,b1,m2,b2):
+        print("\nNo se pudo estimar intersección.")
+    elif abs(m1 - m2) < 1e-12:
+        print("\nRectas paralelas o coincidentes (m1 ≈ m2).")
+    else:
+        xi = (b2 - b1) / (m1 - m2); yi = m1*xi + b1
+        print(f"\nIntersección aproximada: (x={xi:.3f}, y={yi:.3f})")
+
+if __name__=="__main__":
+    main()
+            </pre>
+          </div>
+        </div>
+
+        <div class="right mt16"><a class="btn ghost" href="#u1" data-link>Volver a Actividades de la Unidad 1</a></div>
+      </section>
+
+      <!-- ========== U1: RESTRICCIONES (texto exacto + ZIP) ========== -->
+      <section id="u1-restricciones" hidden>
+        <div class="breadcrumbs">Inicio / Unidad 1 / Restricciones y Sistemas</div>
+        <div class="section-header">
+          <div class="accent" aria-hidden="true"></div>
+          <div class="eyebrow">Actividad del curso</div>
+          <h1>Unidad 1 – Restricciones y Sistemas de Ecuaciones</h1>
+          <div class="desc richtext">
+            <p><strong>Descripción mejorada.</strong> Las <strong>restricciones</strong> limitan el conjunto de valores posibles de las variables y determinan la **región factible**. Son esenciales en optimización y sistemas de ecuaciones para caracterizar soluciones viables. En esta actividad se proponen cinco casos prácticos y se solicita su representación gráfica, reutilizando el graficador del trabajo anterior para contrastar fronteras y combinaciones válidas.</p>
+          </div>
+          <div class="meta">
+            <span class="tag">Modelado</span>
+            <span class="tag">Región factible</span>
+            <span class="tag">Representación</span>
+          </div>
+        </div>
+
+        <div class="card mt16">
+          <h3>Ejercicios (texto exacto)</h3>
+          <div class="doc-block">
+            <p><strong>Descripción</strong><br>
+            Las restricciones son condiciones que limitan el conjunto de valores posibles que pueden tomar las variables en un problema. Estas son esenciales en problemas de optimización y en sistemas de ecuaciones, ya que definen la región factible, es decir, el espacio de soluciones posibles. En ese sentido se proponen 5 ejercicios que deben ser desarrollados utilizando las restricciones y el código del anterior trabajo para realizar una representación gráfica.</p>
+
+            <pre>
+Un desarrollador tiene 15 horas semanales para dedicar al desarrollo de software de front-end (x) y back-end (y). Además:
+• Debe dedicar al menos 5 horas al desarrollo de front-end para cumplir con los entregables del cliente.
+• El tiempo total no puede exceder 15 horas por restricciones de tiempo del sprint.
+Formule las restricciones, represéntelas gráficamente e identifique las combinaciones posibles de tiempo a invertir en cada actividad.
+
+Un ingeniero de datos administra dos tipos de servidores en la nube: Servidores A y Servidores B. El costo por hora de Servidor A es S/3 y de Servidor B es S/5. El presupuesto máximo semanal asignado para mantener los servidores es de S/20.
+Determine cuántas horas puede mantener activos cada tipo de servidor, formule el sistema de ecuaciones y represéntelo gráficamente.
+
+Un administrador de proyectos tecnológicos organiza su tiempo entre reuniones con stakeholders (x) y trabajo en la documentación técnica (y). Las reuniones requieren al menos 4 horas semanales y la documentación al menos 6 horas. Si dispone de 12 horas para ambas actividades,
+determine la región factible y analice las combinaciones posibles de tiempo.
+
+Una empresa de desarrollo de videojuegos produce dos tipos de assets: Modelos 3D (P₁) y Texturas (P₂). Cada modelo 3D requiere 2 horas de trabajo y cada textura requiere 3 horas. El equipo de arte tiene un total de 18 horas disponibles semanalmente.
+Formule las restricciones, represéntelas gráficamente y determine cuántos assets de cada tipo pueden producirse en función del tiempo disponible.
+
+Una startup de hardware dispone de un máximo de 50 unidades de componentes electrónicos. Para ensamblar un dispositivo tipo A se necesitan 5 unidades y para un dispositivo tipo B se necesitan 10 unidades.
+Determine cuántos dispositivos de cada tipo puede ensamblar sin exceder las 50 unidades de componentes. Formule el problema, resuélvalo gráficamente y explique las posibles combinaciones de producción.
+            </pre>
+          </div>
+
+          <div class="pdf-row mt12">
+            <a class="btn ghost" href="pdf3.pdf" target="_blank" rel="noopener">PDF</a>
+            <a class="btn primary" href="pdf3.pdf" download>PDF</a>
+            <a class="btn ghost" href="codigo.zip" download>Descargar códigos (.zip)</a>
+          </div>
+        </div>
+
+        <div class="right mt16"><a class="btn ghost" href="#u1" data-link>Volver a Actividades de la Unidad 1</a></div>
+      </section>
+
+      <!-- ========== U1: REGULA FALSI (solo descripción mejorada) ========== -->
+      <section id="u1-regula" hidden>
+        <div class="breadcrumbs">Inicio / Unidad 1 / Regula Falsi</div>
+        <div class="section-header">
+          <div class="accent" aria-hidden="true"></div>
+          <div class="eyebrow">Actividad del curso</div>
+          <h1>Unidad 1 – Método de Regula Falsi</h1>
+          <div class="desc richtext">
+            <p><strong>Descripción mejorada.</strong> El método de la <strong>Regula Falsi</strong> (o falsa posición) es un procedimiento por intervalos para hallar raíces reales de <code>f(x)=0</code>. Parte de un tramo <code>[a,b]</code> tal que <code>f(a)·f(b)&lt;0</code>, lo que asegura un cambio de signo y la existencia de al menos una raíz. En cada iteración se traza la secante entre <code>(a,f(a))</code> y <code>(b,f(b))</code> y se toma su intersección con el eje <em>x</em> como aproximación; luego se actualiza el extremo que preserva el cambio de signo, manteniendo acotada la solución.</p>
+            <p>El método combina la <em>robustez</em> del enfoque por bisección (la raíz nunca escapa del intervalo) con una <em>direccionalidad</em> propia de la secante, que suele acelerar el acercamiento a la raíz. En casos de estancamiento por curvatura, la variante <strong>Illinois</strong> atenúa el peso de un extremo para recuperar progreso. Los criterios de parada habituales son una tolerancia en <code>|f(x)|</code> y/o en la longitud de <code>[a,b]</code>, además de un máximo de iteraciones.</p>
+          </div>
+          <div class="meta">
+            <span class="tag">Intervalo con cambio de signo</span>
+            <span class="tag">Interpolación lineal</span>
+            <span class="tag">Criterios de parada</span>
+          </div>
+        </div>
+
+        <div class="card mt16">
+          <h3>Material</h3>
+          <div class="pdf-row">
+            <a class="btn ghost" href="pdf4.pdf" target="_blank" rel="noopener">PDF</a>
+            <a class="btn primary" href="pdf4.pdf" download>PDF</a>
+          </div>
+        </div>
+
+        <div class="right mt16"><a class="btn ghost" href="#u1" data-link>Volver a Actividades de la Unidad 1</a></div>
+      </section>
+
+      <!-- ========== U1: NEWTON-RAPHSON ========== -->
+      <section id="u1-newton" hidden>
+        <div class="breadcrumbs">Inicio / Unidad 1 / Newton-Raphson</div>
+        <div class="section-header">
+          <div class="accent" aria-hidden="true"></div>
+          <div class="eyebrow">Actividad del curso</div>
+          <h1>Unidad 1 – Método de Newton-Raphson</h1>
+          <div class="desc richtext">
+            <p><strong>Descripción mejorada.</strong> El método de <strong>Newton–Raphson</strong> aproxima raíces reales de funciones continuas y derivables mediante la actualización <code>xₙ₊₁ = xₙ − f(xₙ)/f’(xₙ)</code>. Se interpreta como la intersección de la recta tangente en <code>xₙ</code> con el eje <em>x</em>. Con un punto inicial adecuado y funciones suaves, su convergencia suele ser <em>cuadrática</em>, es decir, muy rápida.</p>
+            <p><strong>Aplicación en Python.</strong> Primero se grafica <code>f(x)</code> en un intervalo definido por el usuario para identificar visualmente zonas con posibles raíces. Si se confirma, se solicita un valor inicial <code>x₁</code> y se ejecuta Newton–Raphson con derivada numérica central, controles ante pendientes casi nulas y criterios de parada por tolerancia y por iteraciones máximas. El programa reporta la raíz aproximada y el número de iteraciones, y muestra la traza de los puntos generados.</p>
+          </div>
+          <div class="meta">
+            <span class="tag">Convergencia cuadrática</span>
+            <span class="tag">Salvaguardas</span>
+            <span class="tag">Visualización</span>
+          </div>
+        </div>
+
+        <div class="card mt16">
+          <h3>Material</h3>
+          <div class="pdf-row">
+            <a class="btn ghost" href="pdf5.pdf" target="_blank" rel="noopener">PDF</a>
+            <a class="btn primary" href="pdf5.pdf" download>PDF</a>
+          </div>
+        </div>
+
+        <div class="card mt16">
+          <div class="code-card">
+            <div class="right small muted">Archivo: <code>newton_raphson_plot.py</code></div>
+            <div class="code-actions">
+              <button class="btn primary" data-copy="#code-newton">Copiar</button>
+              <button class="btn ghost" data-download="#code-newton" data-filename="newton_raphson_plot.py">Descargar .py</button>
+            </div>
+            <pre id="code-newton">
+import numpy as np
+import matplotlib.pyplot as plt
+
+SAFE = {
+    "sin": np.sin, "cos": np.cos, "tan": np.tan,
+    "exp": np.exp, "log": np.log, "sqrt": np.sqrt,
+    "pi": np.pi, "e": np.e, "abs": np.abs
+}
+
+def parse_func(s):
+    s = s.replace("^","**")
+    def f(x):
+        return eval(s, {"__builtins__":{}}, {**SAFE, "x":x})
+    return f
+
+def deriv(f, x, h=1e-6):
+    return (f(x+h) - f(x-h)) / (2*h)
+
+if __name__ == "__main__":
+    func_str = input("Ingrese f(x) (ej: x**3 - x - 1): ")
+    f = parse_func(func_str)
+    xmin = float(input("x mínimo: "))
+    xmax = float(input("x máximo: "))
+    xs = np.linspace(xmin, xmax, 600)
+    ys = f(xs)
+
+    plt.figure(figsize=(8,5))
+    plt.plot(xs, ys, label=f"f(x) = {func_str}")
+    plt.axhline(0, color="black", linestyle="--", linewidth=0.8)
+    plt.axvline(0, color="black", linestyle="--", linewidth=0.8)
+    plt.title("Vista previa de f(x)")
+    plt.xlabel("x"); plt.ylabel("f(x)")
+    plt.grid(True, alpha=.25); plt.legend()
+    plt.show()
+
+    op = input("¿Aplicar Newton-Raphson? (s/n): ").strip().lower()
+    if op == "s":
+        x0 = float(input("Ingrese x1 (punto inicial): "))
+        tol = 1e-8
+        max_iter = 100
+        xs_hist = [x0]
+        for it in range(1, max_iter+1):
+            fx = f(x0)
+            d = deriv(f, x0)
+            if not np.isfinite(fx) or not np.isfinite(d):
+                print(f"Valores no finitos cerca de x={x0}. Deteniendo.")
+                break
+            if abs(d) < 1e-12:
+                print(f"Derivada casi nula en x={x0:.6g}. Deteniendo.")
+                break
+            x1 = x0 - fx/d
+            xs_hist.append(x1)
+            if abs(x1 - x0) < tol:
+                print(f"\nRaíz ≈ {x1:.10f} en {it} iteraciones")
+                break
+            x0 = x1
+        else:
+            print("\nNo convergió en el máximo de iteraciones.")
+
+        try:
+            plt.figure(figsize=(8,5))
+            plt.plot(xs, ys, label="f(x)")
+            plt.axhline(0, color="black", linestyle="--", linewidth=0.8)
+            for xi in xs_hist:
+                plt.plot([xi, xi], [0, f(xi)], alpha=.35)
+                plt.scatter([xi], [f(xi)], s=28)
+            plt.title("Iteraciones de Newton-Raphson")
+            plt.legend(); plt.grid(True, alpha=.25)
+            plt.show()
+        except Exception:
+            pass
+    else:
+        print("Operación cancelada.")
+            </pre>
+          </div>
+        </div>
+
+        <div class="right mt16"><a class="btn ghost" href="#u1" data-link>Volver a Actividades de la Unidad 1</a></div>
+      </section>
+
+      <!-- ========== U2 PLACEHOLDER ========== -->
+      <section id="u2" hidden>
+        <div class="section-header">
+          <div class="accent" aria-hidden="true"></div>
+          <div class="eyebrow">Próximamente</div>
+          <h1>Unidad 2</h1>
+          <p class="desc">Interpolación (Newton, Lagrange) e Integración Numérica (Trapecio, Simpson). Se añadirán PDFs y códigos correspondientes.</p>
+        </div>
+        <div class="right mt16"><a class="btn ghost" href="#home" data-link>Volver al inicio</a></div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- Back to top -->
+<a href="#home" class="btn primary to-top" id="toTop" aria-label="Volver arriba">↑</a>
+
+<script>
+/* ---------- Tema claro/oscuro ---------- */
+const root = document.documentElement;
+const themeToggle = document.getElementById('theme');
+(function initTheme(){
+  const saved = localStorage.getItem('theme');
+  if(saved==='light'){ root.classList.add('light'); themeToggle.checked = true; }
+})();
+themeToggle.addEventListener('change', ()=>{
+  root.classList.toggle('light', themeToggle.checked);
+  localStorage.setItem('theme', themeToggle.checked ? 'light' : 'dark');
+});
+
+/* ---------- SPA Navegación ---------- */
+const sections = [...document.querySelectorAll("section")];
+const links = [...document.querySelectorAll("[data-link]")];
+function show(id){
+  sections.forEach(s => s.hidden = (s.id !== id));
+  links.forEach(a => a.classList.toggle("active", a.getAttribute("href")==="#"+id));
+  const inU1 = ["u1","u1-rec-func","u1-lineales","u1-restricciones","u1-regula","u1-newton"].includes(id);
+  const btnU1 = document.getElementById("btn-u1");
+  btnU1.classList.toggle("active", inU1);
+  document.getElementById("u1-collapse").style.display = "block";
+  window.scrollTo({top:0, behavior:"smooth"});
+  localStorage.setItem('route', id);
+}
+links.forEach(a=>{
+  a.addEventListener("click", e=>{
+    e.preventDefault();
+    const id = a.getAttribute("href").slice(1);
+    history.pushState({id},"","#"+id);
+    show(id);
+  });
+});
+window.addEventListener("popstate", ()=>{
+  const id = (location.hash||"#home").slice(1);
+  show(id);
+});
+show(localStorage.getItem('route') || (location.hash||"#home").slice(1));
+
+/* ---------- Colapso Unidad 1 ---------- */
+const btnU1 = document.getElementById("btn-u1");
+btnU1.addEventListener("click", ()=>{
+  const c = document.getElementById("u1-collapse");
+  const open = c.style.display !== "none";
+  c.style.display = open ? "none" : "block";
+  btnU1.setAttribute('aria-expanded', (!open).toString());
+});
+
+/* ---------- Saludo ---------- */
+(function greet(){
+  const h = new Date().getHours();
+  let t = "Buenas noches, bienvenido a mi portafolio";
+  if (h>=5 && h<12) t = "Buenos días, bienvenido a mi portafolio";
+  else if (h>=12 && h<18) t = "Buenas tardes, bienvenido a mi portafolio";
+  document.getElementById("greeting").textContent = t;
+})();
+
+/* ---------- Búsqueda ---------- */
+const q = document.getElementById('q');
+q.addEventListener('input', ()=>{
+  const term = q.value.trim().toLowerCase();
+  document.querySelectorAll('#u1-collapse a').forEach(a=>{
+    const show = a.textContent.toLowerCase().includes(term);
+    a.style.display = show ? "flex" : "none";
+  });
+});
+
+/* ---------- Back to top ---------- */
+const toTop = document.getElementById('toTop');
+window.addEventListener('scroll', ()=>{
+  toTop.classList.toggle('show', window.scrollY>400);
+});
+
+/* ---------- Copiar & Descargar código (sin íconos) ---------- */
+function toast(msg){
+  clearTimeout(window.__toastTimer);
+  let t = document.getElementById("toast");
+  if(!t){
+    t = document.createElement("div");
+    t.id = "toast";
+    t.style.position="fixed"; t.style.zIndex="9999";
+    t.style.right="18px"; t.style.bottom="18px";
+    t.style.padding="10px 14px"; t.style.borderRadius="10px";
+    t.style.background="linear-gradient(135deg, var(--brand), var(--brand-2))";
+    t.style.color="#0b1020"; t.style.fontWeight="800"; t.style.boxShadow="0 12px 30px rgba(0,0,0,.25)";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg; t.style.opacity = "1"; t.style.transition="opacity .2s";
+  window.__toastTimer = setTimeout(()=>t.style.opacity="0", 1800);
+}
+function copyFrom(sel){
+  const pre = document.querySelector(sel);
+  if(!pre) return;
+  const code = pre.innerText.replace(/\u00A0/g,' ');
+  navigator.clipboard.writeText(code).then(()=>toast("Código copiado"))
+    .catch(()=>toast("No se pudo copiar"));
+}
+function downloadFrom(sel, filename="codigo.py"){
+  const pre = document.querySelector(sel);
+  if(!pre) return;
+  const blob = new Blob([pre.innerText.replace(/\u00A0/g,' ')], {type:"text/x-python;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url); toast("Descarga iniciada");
+}
+document.querySelectorAll("[data-copy]").forEach(b=>{
+  b.addEventListener("click", ()=>copyFrom(b.getAttribute("data-copy")));
+});
+document.querySelectorAll("[data-download]").forEach(b=>{
+  b.addEventListener("click", ()=>downloadFrom(b.getAttribute("data-download"), b.getAttribute("data-filename")||"codigo.py"));
+});
+
+/* ---------- Atajos: [ y ] para navegar ---------- */
+const routes = ["home","u1","u1-rec-func","u1-lineales","u1-restricciones","u1-regula","u1-newton","u2"];
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='['||e.key===']'){
+    e.preventDefault();
+    const cur = (location.hash||"#home").slice(1);
+    const idx = routes.indexOf(cur);
+    const next = e.key===']' ? (idx+1) % routes.length : (idx-1+routes.length)%routes.length;
+    const id = routes[next]; history.pushState({id},"","#"+id); show(id);
+  }
+});
+</script>
+</body>
+</html>
